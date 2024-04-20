@@ -6,7 +6,7 @@ import { FaDownload } from 'react-icons/fa';
 // const BASE_URL = 'https://ytv-downloader.onrender.com/api';
 const BASE_URL = 'http://localhost:5000/api';
 
-function Interface() {
+function Downloader() {
     const [url, setUrl] = useState('');
     const [videoDetails, setVideoDetails] = useState(false);
     const [audioFormats, setAudioFormats] = useState([]);
@@ -45,6 +45,7 @@ function Interface() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        console.log('Downloaded');
     }
 
     const handleAudioDownload = async (itag) => {
@@ -172,4 +173,4 @@ function Interface() {
     )
 }
 
-export default Interface;
+export default Downloader;
