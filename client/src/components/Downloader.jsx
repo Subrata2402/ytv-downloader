@@ -83,7 +83,7 @@ function Downloader() {
                 <>
                     {videoDetails &&
                         <div className="row border rounded m-0 p-0 py-3 mb-4">
-                            <div className="col-md-6">
+                            <div className="col-md-4">
                                 <div className="card mb-3">
                                     <img src={videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url} alt={videoDetails.title} className='img-fluid rounded' />
                                     <div className="card-body">
@@ -91,7 +91,7 @@ function Downloader() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-md-3 mb-3 table-responsive">
+                            <div className="col-md-4 mb-3 table-responsive">
                                 <table className='table table-bordered table-striped table-hover text-center m-0'>
                                     <thead>
                                         <tr className='table-dark'>
@@ -115,7 +115,7 @@ function Downloader() {
                                                         <td>{format.qualityLabel}</td>
                                                         <td>{sizeConverter(Number(format.contentLength) + audioSize)}</td>
                                                         <td className='d-flex justify-content-center'>
-                                                            <button className="btn btn-warning d-flex align-items-center" onClick={() => handleVideoDownload(format.itag)}>
+                                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleVideoDownload(format.itag)}>
                                                                 <FaDownload />
                                                             </button>
                                                         </td>
@@ -126,7 +126,7 @@ function Downloader() {
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="col-md-3 table-responsive">
+                            <div className="col-md-4 table-responsive">
                                 <table className='table table-bordered table-hover table-striped text-center m-0'>
                                     <thead>
                                         <tr className='table-dark'>
@@ -151,7 +151,7 @@ function Downloader() {
                                                         <td>{format.audioBitrate}kbps</td>
                                                         <td>{sizeConverter(format.contentLength)}</td>
                                                         <td className='d-flex justify-content-center'>
-                                                            <button className="btn btn-primary d-flex align-items-center" onClick={() => handleAudioDownload(format.itag)}>
+                                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleAudioDownload(format.itag)}>
                                                                 <FaDownload />
                                                             </button>
                                                         </td>
