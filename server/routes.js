@@ -61,9 +61,6 @@ router.get('/download-video', async (req, res) => {
         res.header('Content-Type', 'video/mp4');
         res.header('Accept-Ranges', 'bytes');
         res.header('Cache-Control', 'no-cache');
-        res.header('Connection', 'keep-alive');
-        res.header('Content-Transfer-Encoding', 'binary');
-        res.header('Transfer-Encoding', 'chunked');
         ffmpeg.stdio[5].pipe(res);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });
@@ -99,13 +96,10 @@ router.get('/download-audio', async (req, res) => {
         audioStream.pipe(ffmpeg.stdio[3]);
         const sanitizedVideoTitle = videoTitle.replace(/[^\w\s]/gi, ''); // Remove special characters from video title
         res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.mp3"`);
-        res.header('Content-Type', 'audio/mp3');
         res.header('Content-Length', audioFormat.contentLength);
+        res.header('Content-Type', 'audio/mp3');
         res.header('Accept-Ranges', 'bytes');
         res.header('Cache-Control', 'no-cache');
-        res.header('Connection', 'keep-alive');
-        res.header('Content-Transfer-Encoding', 'binary');
-        res.header('Transfer-Encoding', 'chunked');
         ffmpeg.stdio[4].pipe(res);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });
