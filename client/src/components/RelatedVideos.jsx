@@ -4,7 +4,7 @@ function RelatedVideos(props) {
     const { relatedVideos, setUrl } = props;
 
     return (
-        <div className='row mt-3'>
+        <div className='row'>
             {relatedVideos.map((video, index) => (
                 <div key={index} className='col-lg-3 col-md-4 col-sm-6 col-6'>
                     <div className='card mb-3'>

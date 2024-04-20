@@ -15,36 +15,38 @@ function VideoDownloader(props) {
     }
 
     return (
-        <div className='border p-2' style={{maxHeight: "340px", overflow: "auto"}}>
+        <div className='border p-2' style={{ maxHeight: "380px" }}>
             <div className='d-flex bg-success p-2 fw-bold fs-5 text-white align-items-center justify-content-center'>
                 <FaVideo className='me-2' />Video
             </div>
-            <table className='table table-bordered table-striped table-hover text-center mt-2 m-0'>
-                <thead>
-                    <tr>
-                        <th>Quality</th>
-                        <th>Size</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {formats.map((format, index) => (
-                        <>
-                            {format.hasVideo && format.contentLength &&
-                                <tr key={index}>
-                                    <td>{format.qualityLabel}</td>
-                                    <td>{sizeConverter(Number(format.contentLength) + audioSize)}</td>
-                                    <td className='d-flex justify-content-center'>
-                                        <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleVideoDownload(format.itag)}>
-                                            <FaDownload />
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        </>
-                    ))}
-                </tbody>
-            </table>
+            <div className='border mt-2' style={{ maxHeight: "270px", overflow: "auto" }}>
+                <table className='table table-bordered table-striped table-hover text-center m-0'>
+                    <thead>
+                        <tr>
+                            <th>Quality</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {formats.map((format, index) => (
+                            <>
+                                {format.hasVideo && format.contentLength &&
+                                    <tr key={index}>
+                                        <td>{format.qualityLabel}</td>
+                                        <td>{sizeConverter(Number(format.contentLength) + audioSize)}</td>
+                                        <td className='d-flex justify-content-center'>
+                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleVideoDownload(format.itag)}>
+                                                <FaDownload />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }

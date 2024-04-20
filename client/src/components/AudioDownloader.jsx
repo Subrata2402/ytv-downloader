@@ -16,42 +16,39 @@ function AudioDownloader(props) {
     }
 
     return (
-        <div className='border p-2' style={{maxHeight: "340px", overflow: "auto"}}>
+        <div className='border p-2' style={{ maxHeight: "380px" }}>
             <div className='bg-success fw-bold fs-5 text-white p-2 d-flex align-items-center justify-content-center'>
                 <SiApplemusic className='me-2' />
                 Audio
             </div>
-            <table className='table table-bordered bg-dark table-hover table-striped text-center mt-2 m-0'>
-                <thead>
-                    {/* <tr className='table-dark'>
-                        <th colSpan={3}>
-                            
-                        </th>
-                    </tr> */}
-                    <tr>
-                        <th>Quality</th>
-                        <th>Size</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {audioFormats.map((format, index) => (
-                        <>
-                            {format.contentLength &&
-                                <tr key={index}>
-                                    <td>{format.audioBitrate}kbps</td>
-                                    <td>{sizeConverter(format.contentLength)}</td>
-                                    <td className='d-flex justify-content-center'>
-                                        <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleAudioDownload(format.itag)}>
-                                            <FaDownload />
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        </>
-                    ))}
-                </tbody>
-            </table>
+            <div className='border mt-2' style={{ maxHeight: "270px", overflow: "auto" }}>
+                <table className='table table-bordered bg-dark table-hover table-striped text-center m-0'>
+                    <thead>
+                        <tr>
+                            <th>Quality</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {audioFormats.map((format, index) => (
+                            <>
+                                {format.contentLength &&
+                                    <tr key={index}>
+                                        <td>{format.audioBitrate}kbps</td>
+                                        <td>{sizeConverter(format.contentLength)}</td>
+                                        <td className='d-flex justify-content-center'>
+                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleAudioDownload(format.itag)}>
+                                                <FaDownload />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }
