@@ -1,26 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RotatingLines } from 'react-loader-spinner';
-import { FaVideo } from 'react-icons/fa';
-import { SiApplemusic } from 'react-icons/si';
-import { FaDownload } from 'react-icons/fa';
-// const BASE_URL = 'https://ytv-downloader.onrender.com/api';
-const BASE_URL = 'http://localhost:5000/api';
+import VideoDownloader from './VideoDownloader';
+import AudioDownloader from './AudioDownloader';
+import { BASE_URL } from '../utils/helper';
+import RelatedVideos from './RelatedVideos';
 
 function Downloader() {
-    const [url, setUrl] = useState('');
+    const [url, setUrl] = useState(sessionStorage.getItem('url') || '');
     const [videoDetails, setVideoDetails] = useState(false);
     const [audioFormats, setAudioFormats] = useState([]);
     const [formats, setFormats] = useState([]);
     const [loading, setLoading] = useState(false);
     const [audioSize, setAudioSize] = useState(0);
-
-    const sizeConverter = (bytes) => {
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes === 0) return 'n/a';
-        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        if (i === 0) return bytes + ' ' + sizes[i];
-        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-    }
+    const [relatedVideos, setRelatedVideos] = useState([]);
 
     const handleGetInfo = async () => {
         if (!url) return alert("URL is required");
@@ -32,33 +24,24 @@ function Downloader() {
             setFormats(responseData.formats);
             setAudioSize(Number(responseData.audioFormat.contentLength));
             setAudioFormats(responseData.audioFormats);
+            setRelatedVideos(responseData.relatedVideos);
         } else {
             alert(responseData.message);
         }
         setLoading(false);
     }
 
-    const handleVideoDownload = async (itag) => {
-        const link = document.createElement('a');
-        link.href = `${BASE_URL}/download-video?url=${url}&itag=${itag}`;
-        link.setAttribute('download', videoDetails.title + '.mp4');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        console.log('Downloaded');
-    }
-
-    const handleAudioDownload = async (itag) => {
-        const link = document.createElement('a');
-        link.href = `${BASE_URL}/download-audio?url=${url}&itag=${itag}`;
-        link.setAttribute('download', videoDetails.title + '.mp3');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+    useEffect(() => {
+        fetch(`${BASE_URL}/validateUrl?videoUrl=${url}`).then(res => res.json()).then(data => {
+            if (data.validate) {
+                handleGetInfo();
+                sessionStorage.setItem('url', url);
+            };
+        });
+    }, [url]);
 
     return (
-        <div className="container">
+        <>
             <div className="bg-primary p-3 rounded mt-3 d-flex justify-content-center align-items-center">
                 <img src="youtube_logo.png" alt="Youtube Logo" height={80} width={80} className='img-fluid rounded' />
                 <h1 className='fw-bold mx-3 text-white'>Youtube Video Downloader</h1>
@@ -91,76 +74,17 @@ function Downloader() {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-md-4 mb-3 table-responsive">
-                                <table className='table table-bordered table-striped table-hover text-center m-0'>
-                                    <thead>
-                                        <tr className='table-dark'>
-                                            <th colSpan={3}>
-                                                <div className='d-flex align-items-center justify-content-center'>
-                                                    <FaVideo className='me-2' />Video
-                                                </div>
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Quality</th>
-                                            <th>Size</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {formats.map((format, index) => (
-                                            <>
-                                                {format.hasVideo && format.contentLength &&
-                                                    <tr key={index}>
-                                                        <td>{format.qualityLabel}</td>
-                                                        <td>{sizeConverter(Number(format.contentLength) + audioSize)}</td>
-                                                        <td className='d-flex justify-content-center'>
-                                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleVideoDownload(format.itag)}>
-                                                                <FaDownload />
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                <VideoDownloader formats={formats} audioSize={audioSize} videoId={videoDetails.videoId} />
                             </div>
-                            <div className="col-md-4 table-responsive">
-                                <table className='table table-bordered table-hover table-striped text-center m-0'>
-                                    <thead>
-                                        <tr className='table-dark'>
-                                            <th colSpan={3}>
-                                                <div className='d-flex align-items-center justify-content-center'>
-                                                    <SiApplemusic className='me-2' />
-                                                    Audio
-                                                </div>
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Quality</th>
-                                            <th>Size</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {audioFormats.map((format, index) => (
-                                            <>
-                                                {format.contentLength &&
-                                                    <tr key={index}>
-                                                        <td>{format.audioBitrate}kbps</td>
-                                                        <td>{sizeConverter(format.contentLength)}</td>
-                                                        <td className='d-flex justify-content-center'>
-                                                            <button className="btn btn-outline-primary d-flex align-items-center" onClick={() => handleAudioDownload(format.itag)}>
-                                                                <FaDownload />
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </>
-                                        ))}
-                                    </tbody>
-                                </table>
+
+                            <div className="col-md-4 mb-3 table-responsive">
+                                <AudioDownloader audioFormats={audioFormats} videoId={videoDetails.videoId} />
+                            </div>
+                            <hr />
+                            <div className="col-md-12">
+                                <RelatedVideos relatedVideos={relatedVideos} setUrl={setUrl} getInfo={handleGetInfo} />
                             </div>
                         </div>
                     }
@@ -169,7 +93,7 @@ function Downloader() {
                     <RotatingLines height='100' width='100' />
                 </div>
             }
-        </div>
+        </>
     )
 }
 

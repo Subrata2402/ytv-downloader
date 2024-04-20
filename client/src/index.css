@@ -18,7 +18,7 @@ html {
     height: 100%;
 }
 
-body div#root {
+body div#root>div {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
