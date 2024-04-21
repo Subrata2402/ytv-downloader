@@ -6,7 +6,7 @@ function RelatedVideos(props) {
     return (
         <div className='row'>
             {relatedVideos.map((video, index) => (
-                <div key={index} className='col-lg-3 col-md-4 col-sm-6 col-6'>
+                <div key={index} className='col-lg-3 col-md-4 col-sm-6 col-12'>
                     <div className='card mb-3'>
                         <img src={video.thumbnails[video.thumbnails.length - 1].url} className='card-img-top' alt={video.title} />
                         <div className='card-body'>

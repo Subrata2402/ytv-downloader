@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Downloader from './components/Downloader';
+import Video from './components/Video';
 import Playlist from './components/Playlist';
 
 const router = createBrowserRouter([
@@ -14,11 +14,11 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Downloader />,
+                element: <Video />,
             },
             {
                 path: "/video",
-                element: <Downloader />,
+                element: <Video />,
             },
             {
                 path: "/playlist",

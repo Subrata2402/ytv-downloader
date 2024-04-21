@@ -37,7 +37,7 @@ router.get('/get-info', async (req, res) => {
     }
     try {
         const info = await ytdl.getInfo(videoId);
-        // console.log(info.related_videos);
+        console.log(info.related_videos);
         const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
         res.status(200).json({ success: true, message: "Video info fetched successfully", videoDetails: info.videoDetails, formats: info.formats, audioFormat: audioFormat, audioFormats: audioFormats, relatedVideos: info.related_videos });
@@ -67,7 +67,7 @@ router.get('/download-video', async (req, res) => {
             '-c:v', 'copy',
             '-c:a', 'copy',
             '-movflags', 'frag_keyframe',
-            '-f', 'mp4',
+            '-f', videoFormat.container,
             'pipe:5'
         ], {
             windowsHide: true,
@@ -83,7 +83,7 @@ router.get('/download-video', async (req, res) => {
         audioStream.pipe(ffmpeg.stdio[3]);
         videoStream.pipe(ffmpeg.stdio[4]);
         const sanitizedVideoTitle = videoTitle.replace(/[^\w\s]/gi, ''); // Remove special characters from video title
-        res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.mp4"`);
+        res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.${videoFormat.container}"`);
         res.header('Content-Length', Number(videoFormat.contentLength) + Number(audioFormat.contentLength));
         res.header('Content-Type', 'video/mp4');
         // res.header('Accept-Ranges', 'bytes');
@@ -133,6 +133,64 @@ router.get('/download-audio', async (req, res) => {
         ffmpeg.stdio[4].pipe(res);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
+router.get('/get-playlist-items', async (req, res) => {
+    const playlistId = req.query.playlistId;
+    if (!playlistId) {
+        res.status(400).json({ success: false, message: "Playlist Id is required" });
+    }
+    try {
+        const response = await fetch(`${process.env.YT_API_URI}/playlistItems?part=snippet&playlistId=${playlistId}&key=${process.env.YT_API_KEY}&maxResults=50`);
+        const responseData = await response.json();
+        res.status(200).json({ success: true, message: "Playlist fetched successfully", data: responseData.items.map((item) => item.snippet), nextPageToken: responseData.nextPageToken, prevPageToken: responseData.prevPageToken });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
+router.get('/get-playlist-info', async (req, res) => {
+    const playlistId = req.query.playlistId;
+    if (!playlistId) {
+        res.status(400).json({ success: false, message: "Playlist Id is required" });
+    }
+    try {
+        const response = await fetch(`${process.env.YT_API_URI}/playlists?part=snippet&id=${playlistId}&key=${process.env.YT_API_KEY}`);
+        const responseData = await response.json();
+        res.status(200).json({ success: true, message: "Playlist fetched successfully", data: responseData.items[0].snippet });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
+router.get('/validate-playlist', async (req, res) => {
+    const playlistId = req.query.playlistId;
+    if (!playlistId) {
+        return res.status(400).json({ success: false, message: "Playlist Id is required" });
+    }
+
+    let errorOccurred = false;
+
+    try {
+        let response;
+        if (playlistId.includes('playlist?list=')) {
+            response = await fetch(playlistId);
+        } else {
+            response = await fetch(`https://youtube.com/playlist?list=${playlistId}`);
+        }
+        
+        if (response.status !== 200) {
+            errorOccurred = true;
+            return res.status(400).json({ success: false, message: "Playlist not found" });
+        }
+    } catch (error) {
+        errorOccurred = true;
+        return res.status(400).json({ success: false, message: error.message, data: null });
+    }
+
+    if (!errorOccurred) {
+        return res.status(200).json({ success: true, message: "Playlist is valid" });
     }
 });
 

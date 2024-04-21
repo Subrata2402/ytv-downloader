@@ -4,9 +4,10 @@ import VideoDownloader from './VideoDownloader';
 import AudioDownloader from './AudioDownloader';
 import { BASE_URL } from '../utils/helper';
 import RelatedVideos from './RelatedVideos';
+import InputBox from './InputBox';
 
-function Downloader() {
-    const [url, setUrl] = useState(sessionStorage.getItem('url') || '');
+function Video() {
+    const [url, setUrl] = useState(sessionStorage.getItem('videoUrl') || '');
     const [videoDetails, setVideoDetails] = useState(false);
     const [audioFormats, setAudioFormats] = useState([]);
     const [formats, setFormats] = useState([]);
@@ -32,30 +33,24 @@ function Downloader() {
     }
 
     useEffect(() => {
+        if (url.trim() === '') return;
         fetch(`${BASE_URL}/validateUrl?videoUrl=${url}`).then(res => res.json()).then(data => {
             if (data.validate) {
                 handleGetInfo();
-                sessionStorage.setItem('url', url);
+                sessionStorage.setItem('videoUrl', url);
             };
         });
     }, [url]);
 
     return (
         <>
-            <div className="row">
-                <div className="col-md-8 offset-md-2">
-                    <div className="input-group mb-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter Youtube Video URL e.g. https://www.youtube.com/watch?v=k85mRPqvMbE"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                        />
-                        <button className="btn btn-primary" type="button" disabled={loading} onClick={handleGetInfo}>Download</button>
-                    </div>
-                </div>
-            </div>
+            <InputBox
+                url={url}
+                setUrl={setUrl}
+                loading={loading}
+                placeholder="https://www.youtube.com/watch?v=k85mRPqvMbE"
+                handleGetInfo={handleGetInfo}
+            />
             {!loading ?
                 // Display the video details
                 <>
@@ -63,7 +58,8 @@ function Downloader() {
                         <div className="row border rounded m-0 p-0 py-3 mb-4">
                             <div className="col-md-4">
                                 <div className="card mb-3">
-                                    <img src={videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url} alt={videoDetails.title} className='img-fluid rounded' />
+                                    {/* <img src={videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url} alt={videoDetails.title} className='img-fluid rounded' /> */}
+                                    <iframe height={230} src={videoDetails.embed.iframeUrl} title={videoDetails.title} className='rounded' allowFullScreen></iframe>
                                     <div className="card-body">
                                         <h5 className="card-title fw-bold">{videoDetails.title}</h5>
                                     </div>
@@ -92,4 +88,4 @@ function Downloader() {
     )
 }
 
-export default Downloader;
+export default Video;
