@@ -86,9 +86,10 @@ router.get('/download-video', async (req, res) => {
         res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.mp4"`);
         res.header('Content-Length', Number(videoFormat.contentLength) + Number(audioFormat.contentLength));
         res.header('Content-Type', 'video/mp4');
-        res.header('Accept-Ranges', 'bytes');
-        res.header('Cache-Control', 'no-cache');
+        // res.header('Accept-Ranges', 'bytes');
+        // res.header('Cache-Control', 'no-cache');
         res.header('Transfer-Encoding', 'chunked');
+        // res.header('Date', new Date().toUTCString());
         ffmpeg.stdio[5].pipe(res);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });

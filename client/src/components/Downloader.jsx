@@ -42,11 +42,6 @@ function Downloader() {
 
     return (
         <>
-            <div className="bg-primary p-3 rounded mt-3 d-flex justify-content-center align-items-center">
-                <img src="youtube_logo.png" alt="Youtube Logo" height={80} width={80} className='img-fluid rounded' />
-                <h1 className='fw-bold mx-3 text-white'>Youtube Video Downloader</h1>
-            </div>
-            <hr />
             <div className="row">
                 <div className="col-md-8 offset-md-2">
                     <div className="input-group mb-3">
