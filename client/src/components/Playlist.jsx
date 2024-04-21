@@ -5,6 +5,7 @@ import { BiSolidVideos } from 'react-icons/bi';
 import Loader from '../utils/Loader';
 import VideoDownloader from './VideoDownloader';
 import AudioDownloader from './AudioDownloader';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 function Playlist() {
     const [url, setUrl] = useState(sessionStorage.getItem('playlistUrl') || '');
@@ -83,7 +84,8 @@ function Playlist() {
                 <>
                     {playlistDetails &&
                         <div className="row border rounded m-0 p-0 py-2 mb-4">
-                            <h4 className='text-center fw-bold'>{playlistDetails.title}</h4>
+                            <h3 className='text-center fw-bold'>{playlistDetails.title}</h3>
+                            {videoData && <h5 className='text-center'>{videoData.videoDetails.title}</h5>}
                             <hr />
                             <div className="col-md-4">
                                 {!videoLoader && playlistVideos ?
@@ -101,7 +103,7 @@ function Playlist() {
                                                 </thead>
                                                 <tbody>
                                                     {playlistVideos.map((video, index) => (
-                                                        <tr key={index} onClick={() => handleClick(video)} style={{cursor: "pointer"}}>
+                                                        <tr key={index} onClick={() => handleClick(video)} style={{ cursor: "pointer" }}>
                                                             <td>{index + 1}</td>
                                                             <td className='d-flex'>
                                                                 <img src={video.thumbnails.default?.url} alt={video.title} height={50} width={50} className='img-fluid rounded me-2' />
@@ -115,6 +117,10 @@ function Playlist() {
                                     </div>
                                     : <Loader />
                                 }
+                                <div className='text-center my-2'>
+                                    <button className='btn btn-primary px-4 me-2'><FaArrowLeft /></button>
+                                    <button className='btn btn-primary px-4'><FaArrowRight /></button>
+                                </div>
                             </div>
                             {!loader ?
                                 <>

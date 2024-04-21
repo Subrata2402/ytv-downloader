@@ -37,7 +37,6 @@ router.get('/get-info', async (req, res) => {
     }
     try {
         const info = await ytdl.getInfo(videoId);
-        console.log(info.related_videos);
         const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
         res.status(200).json({ success: true, message: "Video info fetched successfully", videoDetails: info.videoDetails, formats: info.formats, audioFormat: audioFormat, audioFormats: audioFormats, relatedVideos: info.related_videos });
