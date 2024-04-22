@@ -141,7 +141,7 @@ router.get('/get-playlist-items', async (req, res) => {
         res.status(400).json({ success: false, message: "Playlist Id is required" });
     }
     try {
-        const response = await fetch(`${process.env.YT_API_URI}/playlistItems?part=snippet&playlistId=${playlistId}&key=${process.env.YT_API_KEY}&maxResults=50`);
+        const response = await fetch(`${process.env.YT_API_URI}/playlistItems?part=snippet&playlistId=${playlistId}&key=${process.env.YT_API_KEY}&maxResults=25`);
         const responseData = await response.json();
         res.status(200).json({ success: true, message: "Playlist fetched successfully", data: responseData.items.map((item) => item.snippet), nextPageToken: responseData.nextPageToken, prevPageToken: responseData.prevPageToken });
     } catch (error) {

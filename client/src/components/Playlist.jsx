@@ -35,7 +35,7 @@ function Playlist() {
             setPlaylistDetails(responseData.data);
         } else {
             setPlaylistLoader(false);
-            return alert(responseData.message);
+            return alert("Invalid Playlist URL");
         }
         setPlaylistLoader(false);
         setVideoLoader(true);
@@ -44,7 +44,7 @@ function Playlist() {
         if (responseDataVideos.success) {
             setPlaylistVideos(responseDataVideos.data);
         } else {
-            alert(responseDataVideos.message);
+            alert("Failed to fetch playlist videos");
         }
         setVideoLoader(false);
     }
@@ -56,7 +56,7 @@ function Playlist() {
         if (responseData.success) {
             setVideoData(responseData);
         } else {
-            alert(responseData.message);
+            alert("Failed to fetch video data");
         }
         setLoader(false);
     }

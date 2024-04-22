@@ -59,22 +59,31 @@ function Video() {
                             <div className="col-md-4">
                                 <div className="card mb-3">
                                     {/* <img src={videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url} alt={videoDetails.title} className='img-fluid rounded' /> */}
-                                    <iframe height={230} src={videoDetails.embed.iframeUrl} title={videoDetails.title} className='rounded' allowFullScreen></iframe>
+                                    <iframe height={230} src={`https://www.youtube.com/embed/${videoDetails.videoId}`} title={videoDetails.title} className='rounded' allowFullScreen></iframe>
                                     <div className="card-body">
                                         <h5 className="card-title fw-bold">{videoDetails.title}</h5>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="col-md-4 mb-3 table-responsive">
-                                <VideoDownloader formats={formats} audioSize={audioSize} videoId={videoDetails.videoId} />
-                            </div>
+                            {!videoDetails.isLiveContent ?
+                                <>
+                                    <div className="col-md-4 mb-3 table-responsive">
+                                        <VideoDownloader formats={formats} audioSize={audioSize} videoId={videoDetails.videoId} />
+                                    </div>
 
-                            <div className="col-md-4 mb-3 table-responsive">
-                                <AudioDownloader audioFormats={audioFormats} videoId={videoDetails.videoId} />
-                            </div>
+                                    <div className="col-md-4 mb-3 table-responsive">
+                                        <AudioDownloader audioFormats={audioFormats} videoId={videoDetails.videoId} />
+                                    </div>
+                                </>
+                                : <div className="col-md-8">
+                                    <h4 className='fw-bold'>This is a live content, you can't download this video.</h4>
+                                </div>
+                            }
                             <hr />
                             <div className="col-md-12">
+                                <h4 className='fw-bold text-center'>Related Videos</h4>
+                                <hr />
                                 <RelatedVideos relatedVideos={relatedVideos} setUrl={setUrl} getInfo={handleGetInfo} />
                             </div>
                         </div>
