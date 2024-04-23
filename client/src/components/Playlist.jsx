@@ -16,6 +16,7 @@ function Playlist() {
     const [playlistVideos, setPlaylistVideos] = useState(false);
     const [videoData, setVideoData] = useState(false);
     const [count, setCount] = useState(0);
+    const [selectedVideoId, setSelectedVideoId] = useState({});
 
     const filterPlaylistId = (url) => {
         const urlParams = new URLSearchParams(new URL(url).search);
@@ -43,15 +44,17 @@ function Playlist() {
         if (responseVideos.success) {
             setPlaylistVideos(responseVideos);
             setCount(0);
+            setSelectedVideoId(null);
         } else {
             alert("Failed to fetch playlist videos");
         }
         setVideoLoader(false);
     }
 
-    const handleClick = async (video) => {
+    const handleClick = async (videoId) => {
         setLoader(true);
-        const response = await fetch(`${BASE_URL}/get-info?videoId=${video.resourceId.videoId}`).then(res => res.json());
+        setSelectedVideoId(videoId);
+        const response = await fetch(`${BASE_URL}/get-info?videoId=${videoId}`).then(res => res.json());
         if (response.success) {
             setVideoData(response);
         } else {
@@ -110,7 +113,7 @@ function Playlist() {
                                             <BiSolidVideos className="me-2" />List of Videos
                                         </div>
                                         <div className='border mt-2' style={{ maxHeight: "390px", overflow: "auto" }}>
-                                            <table className='table table-bordered table-striped m-0'>
+                                            <table className='table table-bordered m-0'>
                                                 <thead>
                                                     <tr className='text-center'>
                                                         <th>#</th>
@@ -119,7 +122,7 @@ function Playlist() {
                                                 </thead>
                                                 <tbody>
                                                     {playlistVideos.data.map((video, index) => (
-                                                        <tr key={index} onClick={() => handleClick(video)} style={{ cursor: "pointer" }}>
+                                                        <tr key={index} onClick={() => handleClick(video.resourceId.videoId)} style={{ cursor: "pointer" }} className={selectedVideoId === video.resourceId.videoId && "table-success"}>
                                                             <td>{count + index + 1}</td>
                                                             <td className='d-flex'>
                                                                 <img src={video.thumbnails.default?.url} alt={video.title} height={50} width={50} className='img-fluid rounded me-2' />
@@ -153,7 +156,7 @@ function Playlist() {
                             </div>
                             {!loader ?
                                 <>
-                                    {videoData &&
+                                    {videoData ?
                                         <>
                                             <div className="col-md-4 mb-3 table-responsive">
                                                 <VideoDownloader
@@ -170,6 +173,9 @@ function Playlist() {
                                                 />
                                             </div>
                                         </>
+                                        : <div className="col-md-8 d-flex align-items-center justify-content-center mt-3">
+                                            <h3>Select a video to download</h3>
+                                        </div>
                                     }
                                 </>
                                 : <div className="col-md-8">
