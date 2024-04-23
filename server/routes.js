@@ -3,6 +3,8 @@ const router = express.Router();
 const ytdl = require('ytdl-core');
 const ffmpegPath = require('ffmpeg-static');
 const cp = require('child_process');
+const archiver = require('archiver');
+const fs = require('fs');
 
 router.get('/validateId', (req, res) => {
     const videoId = req.query.videoId;
@@ -61,6 +63,7 @@ router.get('/download-video', async (req, res) => {
         const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
         const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
         const ffmpeg = cp.spawn(ffmpegPath, [
+            '-loglevel', '8', '-hide_banner',
             '-i', 'pipe:3',
             '-i', 'pipe:4',
             '-c:v', 'copy',
@@ -78,6 +81,9 @@ router.get('/download-video', async (req, res) => {
                 'pipe',
                 'pipe'
             ]
+        });
+        ffmpeg.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
         });
         audioStream.pipe(ffmpeg.stdio[3]);
         videoStream.pipe(ffmpeg.stdio[4]);
@@ -108,6 +114,7 @@ router.get('/download-audio', async (req, res) => {
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: itag });
         const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
         const ffmpeg = cp.spawn(ffmpegPath, [
+            '-loglevel', '8', '-hide_banner',
             '-i', 'pipe:3',
             '-f', 'mp3',
             'pipe:4'
@@ -188,6 +195,78 @@ router.get('/validate-playlist', async (req, res) => {
 
     if (!errorOccurred) {
         return res.status(200).json({ success: true, message: "Playlist is valid" });
+    }
+});
+
+router.get('/download-zip', async (req, res) => {
+    const videoIds = req.query.videoIds.split(","); // Array of video IDs
+    if (!videoIds || !Array.isArray(videoIds)) {
+        return res.status(400).json({ success: false, message: "Video IDs array is required" });
+    }
+
+    try {
+        const zipName = 'videos.zip';
+        const output = fs.createWriteStream(zipName);
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+        output.on('close', () => {
+            res.download(zipName); // Send the zip file to the client for download
+        });
+
+        archive.pipe(output);
+
+        for (const videoId of videoIds) {
+            const videoInfo = await ytdl.getInfo(videoId);
+            const videoTitle = videoInfo.videoDetails.title;
+            const videoFormats = videoInfo.formats;
+            const videoFormat = ytdl.chooseFormat(videoFormats, { quality: "lowest" });
+            const audioFormats = ytdl.filterFormats(videoFormats, 'audioonly');
+            const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
+            const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
+            const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
+
+            const ffmpeg = cp.spawn(ffmpegPath, [
+                '-loglevel', '8', '-hide_banner',
+                '-i', 'pipe:3',
+                '-i', 'pipe:4',
+                '-c:v', 'copy',
+                '-c:a', 'copy',
+                '-movflags', 'frag_keyframe',
+                '-f', videoFormat.container,
+                `${videoTitle}.${videoFormat.container}`
+            ], {
+                windowsHide: true,
+                stdio: [
+                    'inherit',
+                    'inherit',
+                    'inherit',
+                    'pipe',
+                    'pipe',
+                    'pipe'
+                ]
+            });
+
+            audioStream.pipe(ffmpeg.stdio[3]);
+            videoStream.pipe(ffmpeg.stdio[4]);
+
+            await new Promise((resolve, reject) => {
+                ffmpeg.on('exit', (code) => {
+                    if (code === 0) {
+                        archive.file(`${videoTitle}.${videoFormat.container}`, { name: `${videoTitle}.${videoFormat.container}` });
+                        resolve();
+                    } else {
+                        reject(new Error(`Failed to merge video: ${videoTitle}`));
+                    }
+                });
+            });
+        }
+
+        archive.finalize();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
