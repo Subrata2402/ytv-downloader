@@ -15,6 +15,7 @@ function Playlist() {
     const [playlistDetails, setPlaylistDetails] = useState(false);
     const [playlistVideos, setPlaylistVideos] = useState(false);
     const [videoData, setVideoData] = useState(false);
+    const [count, setCount] = useState(0);
 
     const filterPlaylistId = (url) => {
         const urlParams = new URLSearchParams(new URL(url).search);
@@ -29,20 +30,19 @@ function Playlist() {
         setVideoData(false);
         setPlaylistLoader(true);
         const playlistId = filterPlaylistId(url);
-        const response = await fetch(`${BASE_URL}/get-playlist-info?playlistId=${playlistId}`);
-        const responseData = await response.json();
-        if (responseData.success) {
-            setPlaylistDetails(responseData.data);
+        const response = await fetch(`${BASE_URL}/get-playlist-info?playlistId=${playlistId}`).then(res => res.json());
+        if (response.success) {
+            setPlaylistDetails(response.data);
         } else {
             setPlaylistLoader(false);
             return alert("Invalid Playlist URL");
         }
         setPlaylistLoader(false);
         setVideoLoader(true);
-        const responseVideos = await fetch(`${BASE_URL}/get-playlist-items?playlistId=${playlistId}`);
-        const responseDataVideos = await responseVideos.json();
-        if (responseDataVideos.success) {
-            setPlaylistVideos(responseDataVideos.data);
+        const responseVideos = await fetch(`${BASE_URL}/get-playlist-items?playlistId=${playlistId}`).then(res => res.json());
+        if (responseVideos.success) {
+            setPlaylistVideos(responseVideos);
+            setCount(0);
         } else {
             alert("Failed to fetch playlist videos");
         }
@@ -51,14 +51,30 @@ function Playlist() {
 
     const handleClick = async (video) => {
         setLoader(true);
-        const response = await fetch(`${BASE_URL}/get-info?videoId=${video.resourceId.videoId}`);
-        const responseData = await response.json();
-        if (responseData.success) {
-            setVideoData(responseData);
+        const response = await fetch(`${BASE_URL}/get-info?videoId=${video.resourceId.videoId}`).then(res => res.json());
+        if (response.success) {
+            setVideoData(response);
         } else {
             alert("Failed to fetch video data");
         }
         setLoader(false);
+    }
+
+    const getNextVideos = async (pageToken, next) => {
+        setVideoLoader(true);
+        const playlistId = filterPlaylistId(url);
+        const response = await fetch(`${BASE_URL}/get-playlist-items?playlistId=${playlistId}&pageToken=${pageToken}`).then(res => res.json());
+        if (response.success) {
+            setPlaylistVideos(response);
+            if (next) {
+                setCount(count + 50);
+            } else {
+                setCount(count - 50);
+            }
+        } else {
+            alert("Failed to fetch playlist videos");
+        }
+        setVideoLoader(false);
     }
 
     useEffect(() => {
@@ -89,7 +105,7 @@ function Playlist() {
                             <hr />
                             <div className="col-md-4">
                                 {!videoLoader && playlistVideos ?
-                                    <div className="border p-2" style={{ maxHeight: "500px" }}>
+                                    <div className="border p-2" style={{ maxHeight: "520px" }}>
                                         <div className='d-flex bg-success p-2 fw-bold fs-5 text-white align-items-center justify-content-center'>
                                             <BiSolidVideos className="me-2" />List of Videos
                                         </div>
@@ -102,9 +118,9 @@ function Playlist() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {playlistVideos.map((video, index) => (
+                                                    {playlistVideos.data.map((video, index) => (
                                                         <tr key={index} onClick={() => handleClick(video)} style={{ cursor: "pointer" }}>
-                                                            <td>{index + 1}</td>
+                                                            <td>{count + index + 1}</td>
                                                             <td className='d-flex'>
                                                                 <img src={video.thumbnails.default?.url} alt={video.title} height={50} width={50} className='img-fluid rounded me-2' />
                                                                 <span>{video.title}</span>
@@ -114,24 +130,44 @@ function Playlist() {
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div className='text-center mt-2'>
+                                            <button
+                                                className='btn btn-primary px-4 me-2'
+                                                disabled={!playlistVideos.prevPageToken}
+                                                onClick={() => getNextVideos(playlistVideos.prevPageToken, false)}
+                                            >
+                                                <FaArrowLeft />
+                                            </button>
+                                            <button
+                                                className='btn btn-primary px-4'
+                                                disabled={!playlistVideos.nextPageToken}
+                                                onClick={() => getNextVideos(playlistVideos.nextPageToken, true)}
+                                            >
+                                                <FaArrowRight />
+                                            </button>
+                                        </div>
                                     </div>
                                     : <Loader />
                                 }
-                                <div className='text-center my-2'>
-                                    <button className='btn btn-primary px-4 me-2'><FaArrowLeft /></button>
-                                    <button className='btn btn-primary px-4'><FaArrowRight /></button>
-                                </div>
+
                             </div>
                             {!loader ?
                                 <>
                                     {videoData &&
                                         <>
                                             <div className="col-md-4 mb-3 table-responsive">
-                                                <VideoDownloader formats={videoData.formats} audioSize={Number(videoData.audioFormat.contentLength)} videoId={videoData.videoDetails.videoId} />
+                                                <VideoDownloader
+                                                    formats={videoData.formats}
+                                                    audioSize={Number(videoData.audioFormat.contentLength)}
+                                                    videoId={videoData.videoDetails.videoId}
+                                                />
                                             </div>
 
                                             <div className="col-md-4 mb-3 table-responsive">
-                                                <AudioDownloader audioFormats={videoData.audioFormats} videoId={videoData.videoDetails.videoId} />
+                                                <AudioDownloader
+                                                    audioFormats={videoData.audioFormats}
+                                                    videoId={videoData.videoDetails.videoId}
+                                                />
                                             </div>
                                         </>
                                     }
