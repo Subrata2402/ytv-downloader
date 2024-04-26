@@ -198,76 +198,76 @@ router.get('/validate-playlist', async (req, res) => {
     }
 });
 
-router.get('/download-zip', async (req, res) => {
-    const videoIds = req.query.videoIds.split(","); // Array of video IDs
-    if (!videoIds || !Array.isArray(videoIds)) {
-        return res.status(400).json({ success: false, message: "Video IDs array is required" });
-    }
+// router.get('/download-zip', async (req, res) => {
+//     const videoIds = req.query.videoIds.split(","); // Array of video IDs
+//     if (!videoIds || !Array.isArray(videoIds)) {
+//         return res.status(400).json({ success: false, message: "Video IDs array is required" });
+//     }
 
-    try {
-        const zipName = 'videos.zip';
-        const output = fs.createWriteStream(zipName);
-        const archive = archiver('zip', {
-            zlib: { level: 9 } // Sets the compression level.
-        });
+//     try {
+//         const zipName = 'videos.zip';
+//         const output = fs.createWriteStream(zipName);
+//         const archive = archiver('zip', {
+//             zlib: { level: 9 } // Sets the compression level.
+//         });
 
-        output.on('close', () => {
-            res.download(zipName); // Send the zip file to the client for download
-        });
+//         output.on('close', () => {
+//             res.download(zipName); // Send the zip file to the client for download
+//         });
 
-        archive.pipe(output);
+//         archive.pipe(output);
 
-        for (const videoId of videoIds) {
-            const videoInfo = await ytdl.getInfo(videoId);
-            const videoTitle = videoInfo.videoDetails.title;
-            const videoFormats = videoInfo.formats;
-            const videoFormat = ytdl.chooseFormat(videoFormats, { quality: "lowest" });
-            const audioFormats = ytdl.filterFormats(videoFormats, 'audioonly');
-            const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
-            const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
-            const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
+//         for (const videoId of videoIds) {
+//             const videoInfo = await ytdl.getInfo(videoId);
+//             const videoTitle = videoInfo.videoDetails.title;
+//             const videoFormats = videoInfo.formats;
+//             const videoFormat = ytdl.chooseFormat(videoFormats, { quality: "lowest" });
+//             const audioFormats = ytdl.filterFormats(videoFormats, 'audioonly');
+//             const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
+//             const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
+//             const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
 
-            const ffmpeg = cp.spawn(ffmpegPath, [
-                '-loglevel', '8', '-hide_banner',
-                '-i', 'pipe:3',
-                '-i', 'pipe:4',
-                '-c:v', 'copy',
-                '-c:a', 'copy',
-                '-movflags', 'frag_keyframe',
-                '-f', videoFormat.container,
-                `${videoTitle}.${videoFormat.container}`
-            ], {
-                windowsHide: true,
-                stdio: [
-                    'inherit',
-                    'inherit',
-                    'inherit',
-                    'pipe',
-                    'pipe',
-                    'pipe'
-                ]
-            });
+//             const ffmpeg = cp.spawn(ffmpegPath, [
+//                 '-loglevel', '8', '-hide_banner',
+//                 '-i', 'pipe:3',
+//                 '-i', 'pipe:4',
+//                 '-c:v', 'copy',
+//                 '-c:a', 'copy',
+//                 '-movflags', 'frag_keyframe',
+//                 '-f', videoFormat.container,
+//                 `${videoTitle}.${videoFormat.container}`
+//             ], {
+//                 windowsHide: true,
+//                 stdio: [
+//                     'inherit',
+//                     'inherit',
+//                     'inherit',
+//                     'pipe',
+//                     'pipe',
+//                     'pipe'
+//                 ]
+//             });
 
-            audioStream.pipe(ffmpeg.stdio[3]);
-            videoStream.pipe(ffmpeg.stdio[4]);
+//             audioStream.pipe(ffmpeg.stdio[3]);
+//             videoStream.pipe(ffmpeg.stdio[4]);
 
-            await new Promise((resolve, reject) => {
-                ffmpeg.on('exit', (code) => {
-                    if (code === 0) {
-                        archive.file(`${videoTitle}.${videoFormat.container}`, { name: `${videoTitle}.${videoFormat.container}` });
-                        resolve();
-                    } else {
-                        reject(new Error(`Failed to merge video: ${videoTitle}`));
-                    }
-                });
-            });
-        }
+//             await new Promise((resolve, reject) => {
+//                 ffmpeg.on('exit', (code) => {
+//                     if (code === 0) {
+//                         archive.file(`${videoTitle}.${videoFormat.container}`, { name: `${videoTitle}.${videoFormat.container}` });
+//                         resolve();
+//                     } else {
+//                         reject(new Error(`Failed to merge video: ${videoTitle}`));
+//                     }
+//                 });
+//             });
+//         }
 
-        archive.finalize();
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
+//         archive.finalize();
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ success: false, message: error.message });
+//     }
+// });
 
 module.exports = router;
