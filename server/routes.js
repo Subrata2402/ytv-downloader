@@ -3,8 +3,8 @@ const router = express.Router();
 const ytdl = require('ytdl-core');
 const ffmpegPath = require('ffmpeg-static');
 const cp = require('child_process');
-const archiver = require('archiver');
-const fs = require('fs');
+// const archiver = require('archiver');
+// const fs = require('fs');
 
 router.get('/validateId', (req, res) => {
     const videoId = req.query.videoId;
@@ -62,6 +62,7 @@ router.get('/download-video', async (req, res) => {
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
         const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
         const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
+        res.header('Content-Length', Number(videoFormat.contentLength) + Number(audioFormat.contentLength));
         const ffmpeg = cp.spawn(ffmpegPath, [
             '-loglevel', '8', '-hide_banner',
             '-i', 'pipe:3',
@@ -89,12 +90,8 @@ router.get('/download-video', async (req, res) => {
         videoStream.pipe(ffmpeg.stdio[4]);
         const sanitizedVideoTitle = videoTitle.replace(/[^\w\s]/gi, ''); // Remove special characters from video title
         res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.${videoFormat.container}"`);
-        res.header('Content-Length', Number(videoFormat.contentLength) + Number(audioFormat.contentLength));
         res.header('Content-Type', 'video/mp4');
-        // res.header('Accept-Ranges', 'bytes');
-        // res.header('Cache-Control', 'no-cache');
         res.header('Transfer-Encoding', 'chunked');
-        // res.header('Date', new Date().toUTCString());
         ffmpeg.stdio[5].pipe(res);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });
@@ -113,6 +110,7 @@ router.get('/download-audio', async (req, res) => {
         const audioFormats = ytdl.filterFormats(videoInfo.formats, 'audioonly');
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: itag });
         const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
+        res.header('Content-Length', audioFormat.contentLength);
         const ffmpeg = cp.spawn(ffmpegPath, [
             '-loglevel', '8', '-hide_banner',
             '-i', 'pipe:3',
@@ -131,7 +129,6 @@ router.get('/download-audio', async (req, res) => {
         audioStream.pipe(ffmpeg.stdio[3]);
         const sanitizedVideoTitle = videoTitle.replace(/[^\w\s]/gi, ''); // Remove special characters from video title
         res.header('Content-Disposition', `attachment; filename="${sanitizedVideoTitle}.mp3"`);
-        res.header('Content-Length', audioFormat.contentLength);
         res.header('Content-Type', 'audio/mp3');
         res.header('Accept-Ranges', 'bytes');
         res.header('Cache-Control', 'no-cache');
