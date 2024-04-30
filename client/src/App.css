@@ -1,0 +1,15 @@
+.box-container {
+    padding: 1rem;
+    box-shadow: 4px 4px 10px darkblue;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    background: rgb(63,94,251);
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+    color: white;
+}
+
+.box-container h3 {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin-bottom: 1rem;
+}

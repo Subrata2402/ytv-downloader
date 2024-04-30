@@ -7,7 +7,8 @@
     padding: 1rem 2rem;
     border-radius: 10px;
     margin: 0.5rem 0 1rem;
-    /* background-color: #5f4c4c; */
+    background: rgb(63,94,251);
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
     color: #fff;
 }
 

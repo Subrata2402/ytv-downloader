@@ -8,7 +8,7 @@ function Footer() {
     const { pathname } = useLocation();
 
     return (
-        <footer className="bg-primary text-white text-center rounded mb-3">
+        <footer className="text-white text-center rounded mb-3">
             <div className="row align-items-center">
                 <div className="col-md-4 my-2 d-flex align-items-center justify-content-center">
                     <img src="youtube_logo.png" alt="Youtube" height={40} width={40} className='img-fluid rounded' />

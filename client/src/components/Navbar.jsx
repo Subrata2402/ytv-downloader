@@ -6,7 +6,7 @@ function Navbar() {
     const { pathname } = useLocation();
 
     return (
-        <div className="navbar bg-primary">
+        <div className="navbar">
             <div className="d-flex justify-content-center align-items-center">
                 <img src="youtube_logo.png" alt="Youtube Logo" height={40} width={40} className='img-fluid rounded' />
                 <div className='mx-3'>

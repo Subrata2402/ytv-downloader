@@ -47,6 +47,19 @@ router.get('/get-info', async (req, res) => {
     }
 });
 
+router.get('/search-video', async (req, res) => {
+    const query = req.query.query;
+    if (!query) {
+        res.status(400).json({ success: false, message: "Query is required" });
+    }
+    try {
+        const response = await fetch(`${process.env.YT_API_URI}/search?part=snippet&q=${query}&key=${process.env.YT_API_KEY}&maxResults=20&type=video&pageToken=${req.query.pageToken || ""}`).then(res => res.json());
+        res.status(200).json({ success: true, message: "Videos fetched successfully", data: response.items.map((item) => item.snippet), nextPageToken: response.nextPageToken, prevPageToken: response.prevPageToken, totalResults: response.pageInfo.totalResults });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
 router.get('/download-video', async (req, res) => {
     const videoId = req.query.url || req.query.videoId;
     const itag = req.query.itag;
@@ -180,7 +193,7 @@ router.get('/validate-playlist', async (req, res) => {
         } else {
             response = await fetch(`https://youtube.com/playlist?list=${playlistId}`);
         }
-        
+
         if (response.status !== 200) {
             errorOccurred = true;
             return res.status(400).json({ success: false, message: "Playlist not found" });

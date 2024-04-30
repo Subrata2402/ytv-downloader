@@ -6,6 +6,7 @@ import Loader from '../utils/Loader';
 import VideoDownloader from './VideoDownloader';
 import AudioDownloader from './AudioDownloader';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 function Playlist() {
     const [url, setUrl] = useState(sessionStorage.getItem('playlistUrl') || '');
@@ -27,16 +28,17 @@ function Playlist() {
     }
 
     const handleGetInfo = async () => {
-        if (!url) return alert("URL is required");
+        if (!url) return toast.error('Please enter a valid URL');
         setVideoData(false);
         setPlaylistLoader(true);
+        toast.dismiss();
         const playlistId = filterPlaylistId(url);
         const response = await fetch(`${BASE_URL}/get-playlist-info?playlistId=${playlistId}`).then(res => res.json());
         if (response.success) {
             setPlaylistDetails(response.data);
         } else {
             setPlaylistLoader(false);
-            return alert("Invalid Playlist URL");
+            return toast.error("Failed to fetch playlist details");
         }
         setPlaylistLoader(false);
         setVideoLoader(true);
@@ -46,7 +48,7 @@ function Playlist() {
             setCount(0);
             setSelectedVideoId(null);
         } else {
-            alert("Failed to fetch playlist videos");
+            toast.error("Failed to fetch playlist videos");
         }
         setVideoLoader(false);
     }
@@ -54,17 +56,19 @@ function Playlist() {
     const handleClick = async (videoId) => {
         setLoader(true);
         setSelectedVideoId(videoId);
+        toast.dismiss();
         const response = await fetch(`${BASE_URL}/get-info?videoId=${videoId}`).then(res => res.json());
         if (response.success) {
             setVideoData(response);
         } else {
-            alert("Failed to fetch video data");
+            toast.error("Failed to fetch video details");
         }
         setLoader(false);
     }
 
     const getNextVideos = async (pageToken, next) => {
         setVideoLoader(true);
+        toast.dismiss();
         const playlistId = filterPlaylistId(url);
         const response = await fetch(`${BASE_URL}/get-playlist-items?playlistId=${playlistId}&pageToken=${pageToken}`).then(res => res.json());
         if (response.success) {
@@ -75,7 +79,7 @@ function Playlist() {
                 setCount(count - 50);
             }
         } else {
-            alert("Failed to fetch playlist videos");
+            toast.error("Failed to fetch playlist videos");
         }
         setVideoLoader(false);
     }

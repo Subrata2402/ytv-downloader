@@ -1,6 +1,7 @@
 import React from 'react';
 
 function InputBox(props) {
+
     return (
         <div className="row">
             <div className="col-md-8 offset-md-2">
@@ -11,8 +12,9 @@ function InputBox(props) {
                         placeholder={props.placeholder}
                         value={props.url}
                         onChange={(e) => props.setUrl(e.target.value)}
+                        disabled={props.loading}
                     />
-                    <button className="btn btn-primary" type="button" disabled={props.loading} onClick={props.handleGetInfo}>Download</button>
+                    <button className="btn btn-primary" type="button" disabled={props.loading} onClick={props.handleGetInfo}>Search</button>
                 </div>
             </div>
         </div>

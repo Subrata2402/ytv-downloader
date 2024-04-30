@@ -18,6 +18,10 @@ html {
     height: 100%;
 }
 
+body div#root {
+    background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(29,253,117,1) 50%, rgba(69,129,252,1) 100%);
+}
+
 body div#root>div {
     min-height: 100vh;
     display: flex;
@@ -27,6 +31,7 @@ body div#root>div {
 footer {
     margin-top: auto;
     font-weight: 600;
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
 }
 
 footer a {

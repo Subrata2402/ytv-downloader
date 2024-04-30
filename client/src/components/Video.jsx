@@ -5,6 +5,8 @@ import AudioDownloader from './AudioDownloader';
 import { BASE_URL } from '../utils/helper';
 import RelatedVideos from './RelatedVideos';
 import InputBox from './InputBox';
+import { toast } from 'react-toastify';
+import { BiSolidVideos } from 'react-icons/bi';
 
 function Video() {
     const [url, setUrl] = useState(sessionStorage.getItem('videoUrl') || '');
@@ -16,8 +18,9 @@ function Video() {
     const [relatedVideos, setRelatedVideos] = useState([]);
 
     const handleGetInfo = async () => {
-        if (!url) return alert("URL is required");
+        if (!url) return toast.error('Please enter a valid URL');
         setLoading(true);
+        toast.dismiss();
         const response = await fetch(`${BASE_URL}/get-info?videoId=${url}`);
         const responseData = await response.json();
         if (responseData.success) {
@@ -26,8 +29,9 @@ function Video() {
             setAudioSize(Number(responseData.audioFormat.contentLength));
             setAudioFormats(responseData.audioFormats);
             setRelatedVideos(responseData.relatedVideos);
+            toast.success('Video details fetched successfully');
         } else {
-            alert(responseData.message);
+            toast.error(responseData.message);
         }
         setLoading(false);
     }
@@ -82,7 +86,7 @@ function Video() {
                             }
                             <hr />
                             <div className="col-md-12">
-                                <h4 className='fw-bold text-center'>Related Videos</h4>
+                                <h4 className='fw-bold text-center text-primary d-flex align-items-center justify-content-center'><BiSolidVideos className="me-2" />Related Videos</h4>
                                 <hr />
                                 <RelatedVideos relatedVideos={relatedVideos} setUrl={setUrl} getInfo={handleGetInfo} />
                             </div>
