@@ -3,8 +3,7 @@ const router = express.Router();
 const ytdl = require('ytdl-core');
 const ffmpegPath = require('ffmpeg-static');
 const cp = require('child_process');
-// const archiver = require('archiver');
-// const fs = require('fs');
+const { title } = require('process');
 
 router.get('/validateId', (req, res) => {
     const videoId = req.query.videoId;
@@ -54,7 +53,31 @@ router.get('/search-video', async (req, res) => {
     }
     try {
         const response = await fetch(`${process.env.YT_API_URI}/search?part=snippet&q=${query}&key=${process.env.YT_API_KEY}&maxResults=20&type=video&pageToken=${req.query.pageToken || ""}`).then(res => res.json());
-        res.status(200).json({ success: true, message: "Videos fetched successfully", data: response.items.map((item) => item.snippet), nextPageToken: response.nextPageToken, prevPageToken: response.prevPageToken, totalResults: response.pageInfo.totalResults });
+        res.status(200).json({
+            success: true,
+            message: "Videos fetched successfully",
+            videos: response.items.map((item) => ({
+                title: item.snippet.title,
+                id: item.id.videoId,
+                thumbnails: Object.values(item.snippet.thumbnails).map(thumbnail => ({url: thumbnail.url}))
+            })),
+            nextPageToken: response.nextPageToken,
+            prevPageToken: response.prevPageToken,
+            totalResults: response.pageInfo.totalResults
+        });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
+router.get('/suggest-keywords', async (req, res) => {
+    const query = req.query.q;
+    if (!query) {
+        res.status(400).json({ success: false, message: "Query is required" });
+    }
+    try {
+        const response = await fetch(`http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${query}`).then(res => res.json());
+        res.status(200).json({ success: true, message: "Keywords fetched successfully", suggestKeywords: response[1] });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message, data: null });
     }

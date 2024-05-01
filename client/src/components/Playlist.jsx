@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import InputBox from './InputBox';
 import { BASE_URL } from '../utils/helper';
 import { BiSolidVideos } from 'react-icons/bi';
 import Loader from '../utils/Loader';
@@ -7,6 +6,7 @@ import VideoDownloader from './VideoDownloader';
 import AudioDownloader from './AudioDownloader';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import PlaylistInputBox from './PlaylistInputBox';
 
 function Playlist() {
     const [url, setUrl] = useState(sessionStorage.getItem('playlistUrl') || '');
@@ -96,7 +96,7 @@ function Playlist() {
 
     return (
         <>
-            <InputBox
+            <PlaylistInputBox
                 url={url}
                 setUrl={setUrl}
                 loading={videoLoader}

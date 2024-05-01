@@ -36,7 +36,7 @@ root.render(
         <RouterProvider router={router}>
             <App />
         </RouterProvider>
-        {/* <ToastContainer
+        <ToastContainer
             position="top-right"
             autoClose={3000}
             hideProgressBar={false}
@@ -47,6 +47,6 @@ root.render(
             draggable
             pauseOnHover
             theme="colored"
-        /> */}
+        />
     </>
 );
