@@ -100,7 +100,7 @@ function Playlist() {
                 url={url}
                 setUrl={setUrl}
                 loading={videoLoader}
-                placeholder="https://youtube.com/playlist?list=PLUvfp5G8vYakJRao6jhREH4D6AHeyCA1Z"
+                placeholder="Paste the youtube playlist URL here..."
                 handleGetInfo={handleGetInfo}
             />
             {!playlistLoader ?

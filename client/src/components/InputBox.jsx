@@ -39,6 +39,13 @@ function InputBox(props) {
         }
     }
 
+    const handleClick = (keyword) => {
+        props.setUrl(keyword);
+        setSelectedItem(-1);
+        dropdownRef.current.classList.remove('show');
+        props.handleGetInfo();
+    }
+
     return (
         <div className="row">
             <div className="col-md-8 offset-md-2">
@@ -59,7 +66,7 @@ function InputBox(props) {
                         {props.suggestKeywords.map((keyword, index) => (
                             <li
                                 key={index}
-                                onClick={() => props.setUrl(keyword)}
+                                onClick={() => handleClick(keyword)}
                                 className={`dropdown-item ${selectedItem === index ? 'active' : ''}`}
                                 id={index}
                                 onKeyDown={handleKeyDown}

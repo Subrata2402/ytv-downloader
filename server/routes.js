@@ -3,7 +3,6 @@ const router = express.Router();
 const ytdl = require('ytdl-core');
 const ffmpegPath = require('ffmpeg-static');
 const cp = require('child_process');
-const { title } = require('process');
 
 router.get('/validateId', (req, res) => {
     const videoId = req.query.videoId;
