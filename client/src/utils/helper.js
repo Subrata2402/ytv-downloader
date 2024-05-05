@@ -2,6 +2,11 @@
 const BASE_URL = 'https://ytv-api.debdevcs.org/api';
 // const BASE_URL = 'https://ytv-downloader.onrender.com/api';
 
+/**
+ * Converts the given number of bytes into a human-readable format.
+ * @param {number} bytes - The number of bytes to convert.
+ * @returns {string} The converted size in a human-readable format.
+ */
 const sizeConverter = (bytes) => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (bytes === 0) return 'n/a';

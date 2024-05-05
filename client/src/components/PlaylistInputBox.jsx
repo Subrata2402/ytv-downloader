@@ -12,7 +12,7 @@ function PlaylistInputBox(props) {
                         placeholder={props.placeholder}
                         value={props.url}
                         onChange={(e) => props.setUrl(e.target.value)}
-                        disabled={props.loading}
+                        disabled={props.loading} // Disable the input box when loading
                     />
                     <button className="btn btn-primary" type="button" disabled={props.loading} onClick={props.handleGetInfo}>Search</button>
                 </div>

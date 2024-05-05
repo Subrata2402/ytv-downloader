@@ -5,6 +5,12 @@ import { BASE_URL, sizeConverter } from '../utils/helper';
 function VideoDownloader(props) {
     const { formats, audioSize, videoId } = props;
 
+    /**
+     * Handles the video download based on the provided itag.
+     *
+     * @param {string} itag - The itag of the video to be downloaded.
+     * @returns {Promise<void>} - A promise that resolves when the download is complete.
+     */
     const handleVideoDownload = async (itag) => {
         const link = document.createElement('a');
         link.href = `${BASE_URL}/download-video?videoId=${videoId}&itag=${itag}`;

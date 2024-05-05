@@ -20,6 +20,7 @@ html {
 
 body div#root {
     background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(29,253,117,1) 50%, rgba(69,129,252,1) 100%);
+    min-height: 100vh;
 }
 
 body div#root>div {

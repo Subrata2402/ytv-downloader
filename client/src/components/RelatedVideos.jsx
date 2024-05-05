@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function RelatedVideos(props) {
-    const { Videos, setUrl } = props;
+    const { Videos } = props;
 
     return (
         <div className='row'>
@@ -11,7 +11,7 @@ function RelatedVideos(props) {
                     <div className='card h-100'>
                         <div className="card-img-top" style={{ overflow: "hidden", position: "relative" }}>
                             <img
-                                src={video.thumbnails[video.thumbnails.length - 1].url}
+                                src={video.thumbnails[video.thumbnails.length - 1].url} // Get the last thumbnail
                                 className='related-video-thumbnail'
                                 alt={video.title}
                             />

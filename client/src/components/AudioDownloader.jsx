@@ -6,6 +6,10 @@ import { BASE_URL, sizeConverter } from '../utils/helper';
 function AudioDownloader(props) {
     const { audioFormats, videoId } = props;
 
+    /**
+     * Handles the audio download for a given itag.
+     * @param {number} itag - The itag of the audio to be downloaded.
+     */
     const handleAudioDownload = async (itag) => {
         const link = document.createElement('a');
         link.href = `${BASE_URL}/download-audio?videoId=${videoId}&itag=${itag}`;

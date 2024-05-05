@@ -21,9 +21,16 @@ function Video() {
     const [searchedVideos, setSearchedVideos] = useState(false);
     const { search } = useLocation();
 
+    /**
+     * Fetches videos based on the provided query.
+     *
+     * @param {string} query - The search query for videos.
+     * @returns {Promise<void>} - A promise that resolves when the videos are fetched.
+     */
     const handleGetVideos = async (query) => {
         const response = await fetch(`${BASE_URL}/search-video?query=${query}`).then(res => res.json());
         if (response.success) {
+            // Set the searched videos
             setSearchedVideos(response.videos);
             toast.success('Videos fetched successfully');
         } else {
@@ -33,12 +40,21 @@ function Video() {
     }
 
 
-    const handleGetInfo = async () => {
+    /**
+     * Fetches video details and related information based on the provided URL or keyword.
+     * @param {string} [keyword=""] - The keyword to search for. Defaults to an empty string.
+     * @returns {Promise<void>} - A promise that resolves once the video details are fetched.
+     */
+    const handleGetInfo = async (keyword="") => {
         if (!url) return toast.error('Please enter a valid URL');
-        setLoading(true);
-        toast.dismiss();
+        setLoading(true); // Set loading to true
+        toast.dismiss(); // Dismiss any previous toasts
+        // Reset the states
         setSearchedVideos(false); setVideoDetails(false);
-        const query = url.replaceAll(" ", "+");
+        let query = url.replaceAll(" ", "+"); // Replace all spaces with '+'
+        if (keyword !== "") {
+            query = keyword.replaceAll(" ", "+");
+        }
         const response = await fetch(`${BASE_URL}/get-info?videoId=${query}`).then(res => res.json());
         if (response.success) {
             setVideoDetails(response.videoDetails);
@@ -57,6 +73,7 @@ function Video() {
         if (search) {
             const query = new URLSearchParams(search);
             if (query.has('videoUrl')) {
+                // Set the video URL from the query parameter
                 setUrl(query.get('videoUrl'));
             }
         }
@@ -67,9 +84,11 @@ function Video() {
         const rawUrl = url.replaceAll(" ", "+");
         fetch(`${BASE_URL}/validateUrl?videoUrl=${rawUrl}`).then(res => res.json()).then(data => {
             if (data.validate) {
+                // Fetch the video details if the URL is valid
                 handleGetInfo();
                 sessionStorage.setItem('videoUrl', url);
             } else {
+                // Fetch the suggest keywords if the URL is invalid
                 fetch(`${BASE_URL}/suggest-keywords?q=${rawUrl}`).then(res => res.json()).then(data => {
                     if (data.success) {
                         setSuggestKeywords(data.suggestKeywords);
@@ -107,36 +126,50 @@ function Video() {
                             {!videoDetails.isLiveContent ?
                                 <>
                                     <div className="col-md-4 mb-3 table-responsive">
+
+                                        {/* Video Downloader Component */}
                                         <VideoDownloader formats={formats} audioSize={audioSize} videoId={videoDetails.videoId} />
+
                                     </div>
 
                                     <div className="col-md-4 mb-3 table-responsive">
+
+                                        {/* Audio Downloader Component */}
                                         <AudioDownloader audioFormats={audioFormats} videoId={videoDetails.videoId} />
+
                                     </div>
                                 </>
                                 : <div className="col-md-8">
+
+                                    {/* If the video is live then can't download this video and show this message */}
                                     <h4 className='fw-bold'>This is a live content, you can't download this video.</h4>
+
                                 </div>
                             }
                             <hr />
                             <div className="col-md-12">
                                 <h4 className='fw-bold text-center text-white d-flex align-items-center justify-content-center'><BiSolidVideos className="me-2" />Related Videos</h4>
                                 <hr />
-                                <RelatedVideos Videos={relatedVideos} setUrl={setUrl} getInfo={handleGetInfo} />
+                                {/* Related Videos Component */}
+                                <RelatedVideos Videos={relatedVideos} getInfo={handleGetInfo} />
                             </div>
                         </div>
                     }
+
+                    {/* Searched Videos */}
                     {searchedVideos &&
                         <div className="row border rounded m-0 p-0 py-3 mb-4">
                             <div className="col-md-12">
                                 <h4 className='fw-bold text-center text-white d-flex align-items-center justify-content-center'><BiSolidVideos className="me-2" />Searched Videos</h4>
                                 <hr />
-                                <RelatedVideos Videos={searchedVideos} setUrl={setUrl} getInfo={handleGetInfo} />
+                                <RelatedVideos Videos={searchedVideos} getInfo={handleGetInfo} />
                             </div>
                         </div>
                     }
+
                 </>
                 : <div className="d-flex justify-content-center align-items-center my-4">
+                    {/* Show this loader icon if the data isn't loaded completely */}
                     <RotatingLines height='100' width='100' />
                 </div>
             }

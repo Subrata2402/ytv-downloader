@@ -51,14 +51,14 @@ router.get('/search-video', async (req, res) => {
         res.status(400).json({ success: false, message: "Query is required" });
     }
     try {
-        const response = await fetch(`${process.env.YT_API_URI}/search?part=snippet&q=${query}&key=${process.env.YT_API_KEY}&maxResults=20&type=video&pageToken=${req.query.pageToken || ""}`).then(res => res.json());
+        const response = await fetch(`${process.env.YT_API_URI}/search?part=snippet&q=${query}&key=${process.env.YT_API_KEY}&maxResults=48&type=video&pageToken=${req.query.pageToken || ""}`).then(res => res.json());
         res.status(200).json({
             success: true,
             message: "Videos fetched successfully",
             videos: response.items.map((item) => ({
                 title: item.snippet.title,
                 id: item.id.videoId,
-                thumbnails: Object.values(item.snippet.thumbnails).map(thumbnail => ({url: thumbnail.url}))
+                thumbnails: Object.values(item.snippet.thumbnails).map(thumbnail => ({ url: thumbnail.url }))
             })),
             nextPageToken: response.nextPageToken,
             prevPageToken: response.prevPageToken,
