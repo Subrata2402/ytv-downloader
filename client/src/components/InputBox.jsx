@@ -48,7 +48,7 @@ function InputBox(props) {
         props.setUrl(e.target.value);
         setSelectedItem(-1);
         // If the input value is empty or contains 'http', hide the dropdown
-        if (dropdownRef.current.classList.contains('show') && e.target.value.trim() === '' || e.target.value.includes('http')) {
+        if (dropdownRef.current.classList.contains('show') && (e.target.value.trim() === '' || e.target.value.includes('http'))) {
             dropdownRef.current.classList.remove('show');
         } else {
             dropdownRef.current.setAttribute('data-popper-placement', 'bottom-start');
@@ -78,7 +78,7 @@ function InputBox(props) {
                         aria-label="Search"
                         className="form-control dropdown-toggle"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"
+                        // aria-expanded="false"
                         placeholder={props.placeholder}
                         value={props.url}
                         onChange={handleOnChange}
