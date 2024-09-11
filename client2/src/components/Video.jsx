@@ -64,7 +64,7 @@ function Video() {
             setRelatedVideos(response.relatedVideos);
             // set state to the current URL
             window.history.pushState({}, '', `/video?videoUrl=${query}`);
-            console.log(state);
+            // console.log(state);
             toast.success('Video details fetched successfully');
             setLoading(false);
         } else {

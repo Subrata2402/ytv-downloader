@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 app.get('/', (req, res) => {
-    res.send('Hello World');
+    res.send('Youtube Video Downloader API');
 });
 
 app.listen(process.env.PORT, () => {

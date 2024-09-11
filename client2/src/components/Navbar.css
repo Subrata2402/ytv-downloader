@@ -1,0 +1,45 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    margin: 0.5rem 0 1rem;
+    background: rgb(63,94,251);
+    background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+    color: #fff;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    padding: 0.5rem 1rem;
+}
+
+.navbar a:hover, .navlink-active {
+    background-color: #0020c6;
+    border-radius: 5px;
+    color: #fff;
+}
+
+@media screen and (max-width: 990px) {
+    .navbar {
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .navbar>div>div {
+        display: none;
+    }
+
+    .navbar {
+        padding: 1rem 1rem;
+    }
+
+    .navbar a {
+        padding: 0.5rem 0.5rem;
+    }
+}
