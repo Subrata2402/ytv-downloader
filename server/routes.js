@@ -54,14 +54,14 @@ router.get('/get-info', async (req, res) => {
     if (!videoId) {
         res.status(400).json({ success: false, message: "Video Id is required" });
     }
-    // try {
+    try {
         const info = await ytdl.getInfo(videoId);
         const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
         res.status(200).json({ success: true, message: "Video info fetched successfully", data: {videoDetails: info.videoDetails, formats: info.formats, audioFormat: audioFormat, audioFormats: audioFormats, relatedVideos: info.related_videos} });
-    // } catch (error) {
-    //     res.status(400).json({ success: false, message: error.message, data: null });
-    // }
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
 });
 
 router.get('/search-video', async (req, res) => {
