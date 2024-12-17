@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const ytdl = require('ytdl-core');
+const ytdl = require("@distube/ytdl-core");
 const ffmpegPath = require('ffmpeg-static');
 const cp = require('child_process');
 
-router.get('/validateId', (req, res) => {
+router.get('/validate-id', (req, res) => {
     const videoId = req.query.videoId;
     if (!videoId) {
         res.status(400).json({ success: false, message: "Video Id is required" });
@@ -17,7 +17,7 @@ router.get('/validateId', (req, res) => {
     }
 });
 
-router.get('/validateUrl', (req, res) => {
+router.get('/validate-url', (req, res) => {
     const videoUrl = req.query.videoUrl;
     if (!videoUrl) {
         res.status(400).json({ success: false, message: "Video URL is required" });
@@ -30,19 +30,38 @@ router.get('/validateUrl', (req, res) => {
     }
 });
 
+router.get('/get-video-id', (req, res) => {
+    const videoUrl = req.query.videoUrl;
+    if (!videoUrl) {
+        res.status(400).json({ success: false, message: "Video URL is required" });
+    }
+    try {
+        const validate = ytdl.validateURL(videoUrl);
+        if (validate) {
+            const videoId = ytdl.getVideoID(videoUrl);
+            if (videoId) {
+                return res.status(200).json({ success: true, videoId: videoId });
+            }
+        }
+        res.status(400).json({ success: false, validate: validate, message: "Invalid video URL" });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message, data: null });
+    }
+});
+
 router.get('/get-info', async (req, res) => {
     const videoId = req.query.videoId || req.query.url;
     if (!videoId) {
         res.status(400).json({ success: false, message: "Video Id is required" });
     }
-    try {
+    // try {
         const info = await ytdl.getInfo(videoId);
         const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
         const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
-        res.status(200).json({ success: true, message: "Video info fetched successfully", videoDetails: info.videoDetails, formats: info.formats, audioFormat: audioFormat, audioFormats: audioFormats, relatedVideos: info.related_videos });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message, data: null });
-    }
+        res.status(200).json({ success: true, message: "Video info fetched successfully", data: {videoDetails: info.videoDetails, formats: info.formats, audioFormat: audioFormat, audioFormats: audioFormats, relatedVideos: info.related_videos} });
+    // } catch (error) {
+    //     res.status(400).json({ success: false, message: error.message, data: null });
+    // }
 });
 
 router.get('/search-video', async (req, res) => {
@@ -98,6 +117,7 @@ router.get('/download-video', async (req, res) => {
         const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
         const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
         res.header('Content-Length', Number(videoFormat.contentLength) + Number(audioFormat.contentLength));
+        console.log(videoFormat.container);
         const ffmpeg = cp.spawn(ffmpegPath, [
             '-loglevel', '8', '-hide_banner',
             '-i', 'pipe:3',
@@ -121,6 +141,7 @@ router.get('/download-video', async (req, res) => {
         ffmpeg.on('close', (code) => {
             console.log(`child process exited with code ${code}`);
         });
+        console.log(ffmpeg.stdio);
         audioStream.pipe(ffmpeg.stdio[3]);
         videoStream.pipe(ffmpeg.stdio[4]);
         const sanitizedVideoTitle = videoTitle.replace(/[^\w\s]/gi, ''); // Remove special characters from video title
@@ -229,77 +250,5 @@ router.get('/validate-playlist', async (req, res) => {
         return res.status(200).json({ success: true, message: "Playlist is valid" });
     }
 });
-
-// router.get('/download-zip', async (req, res) => {
-//     const videoIds = req.query.videoIds.split(","); // Array of video IDs
-//     if (!videoIds || !Array.isArray(videoIds)) {
-//         return res.status(400).json({ success: false, message: "Video IDs array is required" });
-//     }
-
-//     try {
-//         const zipName = 'videos.zip';
-//         const output = fs.createWriteStream(zipName);
-//         const archive = archiver('zip', {
-//             zlib: { level: 9 } // Sets the compression level.
-//         });
-
-//         output.on('close', () => {
-//             res.download(zipName); // Send the zip file to the client for download
-//         });
-
-//         archive.pipe(output);
-
-//         for (const videoId of videoIds) {
-//             const videoInfo = await ytdl.getInfo(videoId);
-//             const videoTitle = videoInfo.videoDetails.title;
-//             const videoFormats = videoInfo.formats;
-//             const videoFormat = ytdl.chooseFormat(videoFormats, { quality: "lowest" });
-//             const audioFormats = ytdl.filterFormats(videoFormats, 'audioonly');
-//             const audioFormat = ytdl.chooseFormat(audioFormats, { quality: 'highest' });
-//             const audioStream = ytdl.downloadFromInfo(videoInfo, { format: audioFormat });
-//             const videoStream = ytdl.downloadFromInfo(videoInfo, { format: videoFormat });
-
-//             const ffmpeg = cp.spawn(ffmpegPath, [
-//                 '-loglevel', '8', '-hide_banner',
-//                 '-i', 'pipe:3',
-//                 '-i', 'pipe:4',
-//                 '-c:v', 'copy',
-//                 '-c:a', 'copy',
-//                 '-movflags', 'frag_keyframe',
-//                 '-f', videoFormat.container,
-//                 `${videoTitle}.${videoFormat.container}`
-//             ], {
-//                 windowsHide: true,
-//                 stdio: [
-//                     'inherit',
-//                     'inherit',
-//                     'inherit',
-//                     'pipe',
-//                     'pipe',
-//                     'pipe'
-//                 ]
-//             });
-
-//             audioStream.pipe(ffmpeg.stdio[3]);
-//             videoStream.pipe(ffmpeg.stdio[4]);
-
-//             await new Promise((resolve, reject) => {
-//                 ffmpeg.on('exit', (code) => {
-//                     if (code === 0) {
-//                         archive.file(`${videoTitle}.${videoFormat.container}`, { name: `${videoTitle}.${videoFormat.container}` });
-//                         resolve();
-//                     } else {
-//                         reject(new Error(`Failed to merge video: ${videoTitle}`));
-//                     }
-//                 });
-//             });
-//         }
-
-//         archive.finalize();
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ success: false, message: error.message });
-//     }
-// });
 
 module.exports = router;

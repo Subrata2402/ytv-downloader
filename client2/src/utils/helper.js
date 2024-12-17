@@ -1,5 +1,5 @@
-const BASE_URL = 'http://localhost:5002/api';
-// const BASE_URL = 'https://ytv-api.debdevcs.org/api';
+// const BASE_URL = 'http://localhost:5002/api';
+const BASE_URL = 'https://ytv-api.debdevcs.org/api';
 // const BASE_URL = 'https://ytv-downloader.onrender.com/api';
 
 /**
@@ -15,4 +15,16 @@ const sizeConverter = (bytes) => {
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 };
 
-export { BASE_URL, sizeConverter };
+const getVideoId = (url) => {
+    let videoId = '';
+    if (url.includes('youtube.com')) {
+        videoId = url.split('v=')[1];
+    } else if (url.includes('youtu.be')) {
+        videoId = url.split('/')[3];
+    } else {
+        videoId = url;
+    }
+    return videoId;
+}
+
+export { BASE_URL, sizeConverter, getVideoId };

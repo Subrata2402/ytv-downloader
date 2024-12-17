@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RotatingLines } from 'react-loader-spinner';
 import VideoDownloader from './VideoDownloader';
 import AudioDownloader from './AudioDownloader';
-import { BASE_URL } from '../utils/helper';
+import { BASE_URL, getVideoId } from '../utils/helper';
 import RelatedVideos from './RelatedVideos';
 import InputBox from './InputBox';
 import { toast } from 'react-toastify';
@@ -55,13 +55,13 @@ function Video() {
         if (keyword !== "") {
             query = keyword.replaceAll(" ", "+");
         }
-        const response = await fetch(`${BASE_URL}/get-info?videoId=${query}`).then(res => res.json());
+        const response = await fetch(`${BASE_URL}/get-info?videoId=${getVideoId(query)}`).then(res => res.json());
         if (response.success) {
-            setVideoDetails(response.videoDetails);
-            setFormats(response.formats);
-            setAudioSize(Number(response.audioFormat.contentLength));
-            setAudioFormats(response.audioFormats);
-            setRelatedVideos(response.relatedVideos);
+            setVideoDetails(response.data?.videoDetails);
+            setFormats(response.data?.formats);
+            setAudioSize(Number(response.data?.audioFormat.contentLength));
+            setAudioFormats(response.data?.audioFormats);
+            setRelatedVideos(response.data?.relatedVideos);
             // set state to the current URL
             window.history.pushState({}, '', `/video?videoUrl=${query}`);
             // console.log(state);
@@ -85,7 +85,7 @@ function Video() {
     useEffect(() => {
         if (url.trim() === '') return;
         const rawUrl = url.replaceAll(" ", "+");
-        fetch(`${BASE_URL}/validateUrl?videoUrl=${rawUrl}`).then(res => res.json()).then(data => {
+        fetch(`${BASE_URL}/validate-url?videoUrl=${rawUrl}`).then(res => res.json()).then(data => {
             if (data.validate) {
                 // Fetch the video details if the URL is valid
                 handleGetInfo();
